@@ -43,7 +43,7 @@ for i = 1:length(AverageCurve)
     AverageCurve(i,8),AverageCurve(i,9),'*');
 
     title("Average Gait Cycle Curve: YZ left view");
-    axis([-500 500 -500 500]);
+    axis([-500 00 0 800 0 800]);
     legend('LTIBA', 'LTIB', 'LHEE');
     pause(.001);
     hold off;

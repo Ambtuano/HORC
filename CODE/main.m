@@ -13,13 +13,12 @@ AverageCurvemat = load('AverageCurve.mat');
 AverageCurve = AverageCurvemat.AverageCurve/1000; %m
 RAmat = load('RA.mat');
 RA = RAmat.RA;
-
-
+EulerRAmat = load('EulerRA.mat');
+EulerRA = EulerRAmat.EulerRA;
 %initial angular configuration
-q0 = zeros(7,1);
-qq = q0;
-q = zeros(length(q0), length(t));
-q(:,1) = q0;
+qq = zeros(7,1);
+q = zeros(length(qq), length(t));
+q(:,1) = qq;
 
 %Kuka limitations lim(joint) = (+-Range of motion (radians), max velocity (radians/s))
 lim = zeros(7,2);
@@ -44,50 +43,53 @@ lim(7,1:2) = [170, 180]*pi/180;
 % end
 % 
 TB0 = [0 0 1 0; 1 0 0 0; 0 1 0 0; 0 0 0 1];
-% J = zeros(6,7);
-% T01 = T{1}; 
-% T02 = T01*T{2}; 
-% T03 = T02*T{3};
-% T04 = T03*T{4};
-% T05 = T04*T{5};
-% T06 = T05*T{6};
-% T07 = T06*T{7};
-T07 = [RA{1},[AverageCurve(1,1);AverageCurve(1,2);AverageCurve(1,3)];0 0 0 1];
-TB7 = TB0*T07; 
+T07 = cell(140,1);
+TB7 = cell(140,1);
+phi = cell(140,1);
+pd = cell(140,1);
+phid = cell(140,1);
+Euler = zeros(3,140);
+for i = t
+    T07{i} = [RA{i},[AverageCurve(i,1);AverageCurve(i,2);AverageCurve(i,3)];0 0 0 1];
+    TB7{i} = TB0*T07{i}; 
+    phi{i} = EulerAngles(T07{i});
+    pd{i} = [AverageCurve(i,1)'; AverageCurve(i,2)'];
+    phid{i} = AverageCurve(i,3)';
+    Euler(:,i) = EulerRA{i};
+end
 
 disp('initial matrix');
 disp(Forw_Kin(q(:,1)));
 disp('goal matrix');
-disp(T07);
+disp(T07{1});
 
-phi = EulerAngles(T07);
+
 
 %first point in 
-pa = T07(1:3,4); %wrt 0
-xa = [pa;phi]; 
+pa = T07{1}(1:3,4); %wrt 0
+xa = [pa;phi{1}]; 
 
 disp('xa');
 disp(xa);
 
-pd = [AverageCurve(t,1)'; AverageCurve(t,2)'];
-phid = AverageCurve(t,3)';
+
 K = .1;
 xe_= zeros(length(xa), length(t));
 e_ = zeros(length(xa), length(t));
 counter = 1;
-for i = 1:length(t)
+for i = 1:length(AverageCurve)
     xe = Forw_Kin(q(:,i));
     Ja = JacobianA(q(:,i));
-    e = [pd(:,i); phid(i);phi] - xe;
+    e = [pd{i}; phid{i};phi{i}] - xe;
     disp(i);
     disp(e);
-    while (max(abs(e)) > 0.00001)
+    while (max(abs(e)) > 0.000001)
         Ja = JacobianA(qq);
         qdot = (pinv(Ja))*K*e;
         qq = qq + qdot;
         
         xe = Forw_Kin(qq);
-        e = [pd(:,i); phid(i);phi] - xe;
+        e = [pd{i}; phid{i};phi{i}] - xe;
         e_(:,counter) = e;
         
         counter = counter + 1;
@@ -101,10 +103,10 @@ end
 disp('desired output of End Effector: ')
 disp(xa)
 disp('Final output of End Effector: ')
-disp(xe)
-disp('Computed Configuration: ')
+disp(xe_(:,length(xe_)))
+disp('Computed Configuration: q')
 disp(qq)
-disp('Actual Transformation Matrix: ')
+disp('Actual Transformation Matrix: (wrt 0)')
 d = [.3105 0 .400 0 .390 0 .083]';
 alpha = [pi/2 -pi/2 -pi/2 pi/2 pi/2 -pi/2 0]';
 a = zeros(7,1);
@@ -116,6 +118,44 @@ for i =1:7
          0 sin(alpha(i)) cos(alpha(i)) d(i); 0 0 0 1];
      T_total = T_total*T;
 end
+
+
+% %POSITION ERROR
+% figure
+% subplot(3,1,1);
+% plot(xe_(1,:)-AverageCurve(:,1)');
+% title("X position error");
+% subplot(3,1,2);
+% plot(xe_(2,:)-AverageCurve(:,2)');
+% title("X position error");
+% subplot(3,1,3);
+% plot(xe_(3,:)-AverageCurve(:,3)');
+% title("X position error");
+% 
+% 
+% %ORIENTATION ERROR
+% figure
+% subplot(3,1,1);
+% plot((xe_(4,:)-Euler(1,:))*180/pi);
+% title("Phi(z) error");
+% subplot(3,1,2);
+% plot((xe_(5,:)-Euler(2,:))*180/pi);
+% title("Theta(y) error");
+% subplot(3,1,3);
+% plot((xe_(6,:)-Euler(3,:))*180/pi);
+% title("Psi(z) error");
+
+%ORIENTATION 
+figure
+subplot(3,1,1);
+plot((xe_(4,:))*180/pi);
+title("Phi(z)");
+subplot(3,1,2);
+plot((xe_(5,:))*180/pi);
+title("Theta(y)");
+subplot(3,1,3);
+plot((xe_(6,:))*180/pi);
+title("Psi(z)");
 
 disp(T_total)
 dlmwrite('q.txt',q)

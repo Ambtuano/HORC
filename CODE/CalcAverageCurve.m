@@ -1,6 +1,5 @@
-clear all;
-close all;
-
+%clear;
+%close;
 %Isolate the LTIB and LTIBA columns.
 %Plot X, Y, Z over time and Y over Z for each one of the markers.
 
@@ -95,7 +94,7 @@ end
 %adjusts the coordinate system such that the robot will be on table and
 %treadmill will be next to robot in the x direction (wrt global frame)
 XCal = AverageCurve(1,1);
-YCal = AverageCurve(1,2) + 200;
+YCal = AverageCurve(1,2) + 500;
 ZCal = AverageCurve(1,3);
 
 for i = 1:3:size(AverageCurve,2)
@@ -130,35 +129,47 @@ VarLabel = ["LTIBA", "LTIB", "LHEE"];
 % end
 % 
 % % plot gait cycles of each market along yz axes
-figure
-for i = 1:size(Position,2)/3
-plot(AverageCurve(:,i*3-1),AverageCurve(:,i*3));
-hold on;
-xlabel("Y Position");
-ylabel("Z Position");
-title("Average Gait Cycle Curve: YZ Left view");
-axis([-400 400 -400 400]);
-end
-legend('LTIBA', 'LTIB', 'LHEE');
+% figure
+% subplot(3,1,1)
+% for i = 1:size(Position,2)/3
+% plot(AverageCurve(:,i*3-1),AverageCurve(:,i*3));
+% hold on;
+% xlabel("Y Position");
+% ylabel("Z Position");
+% title("Average Gait Cycle Curve: YZ Left view");
+% axis([-750 0 -500 500]);
+% end
+% legend('LTIBA', 'LTIB', 'LHEE');
+% 
+% subplot(3,1,2)
+% for i = 1:size(Position,2)/3
+% plot(AverageCurve(:,i*3-2),AverageCurve(:,i*3-1));
+% hold on;
+% xlabel("X Position");
+% ylabel("Y Position");
+% title("Average Gait Cycle Curve: XY Top view");
+% axis([-100 100 -1000 0]);
+% end
+% legend('LTIBA', 'LTIB', 'LHEE');
+% 
+% subplot(3,1,3)
+% for i = 1:size(Position,2)/3
+% plot(AverageCurve(:,i*3-2),AverageCurve(:,i*3));
+% hold on;
+% xlabel("X Position");
+% ylabel("Z Position");
+% title("Average Gait Cycle Curve: XZ Front view");
+% axis([-100 100 -100 100]);
+% end
+% legend('LTIBA', 'LTIB', 'LHEE');
 
-figure
-for i = 1:size(Position,2)/3
-plot(AverageCurve(:,i*3-2),AverageCurve(:,i*3-1));
-hold on;
-xlabel("X Position");
-ylabel("Y Position");
-title("Average Gait Cycle Curve: XY Top view");
-axis([-400 400 -400 400]);
-end
-legend('LTIBA', 'LTIB', 'LHEE');
-
-figure
-plot3(AverageCurve(:,1),AverageCurve(:,2),AverageCurve(:,3),...
-AverageCurve(:,4),AverageCurve(:,5),AverageCurve(:,6),...
-AverageCurve(:,7),AverageCurve(:,8),AverageCurve(:,9));
-title("Average Gait Cycle Curve: XYZ");
-%axis([0 800 0 800 0 800]);
-legend('LTIBA', 'LTIB', 'LHEE');
+% figure
+% plot3(AverageCurve(:,1),AverageCurve(:,2),AverageCurve(:,3),...
+% AverageCurve(:,4),AverageCurve(:,5),AverageCurve(:,6),...
+% AverageCurve(:,7),AverageCurve(:,8),AverageCurve(:,9));
+% title("Average Gait Cycle Curve: XYZ");
+% %axis([0 800 0 800 0 800]);
+% legend('LTIBA', 'LTIB', 'LHEE');
 
 %degrees (atan2(heel-tibia)) on YZ plane
 thetaA_yz = (atan2(AverageCurve(:,8)-AverageCurve(:,2), AverageCurve(:,9)-AverageCurve(:,3)));%*180/pi);
@@ -188,41 +199,49 @@ thetaCalB_xy = mean(atan2(LHEE_x(1:700)-LTIB_x(1:700),LHEE_y(1:700)-LTIB_y(1:700
 thetaCalA_xz = mean(atan2(LHEE_x(1:700)-LTIBA_x(1:700),LHEE_z(1:700)-LTIBA_z(1:700)));%*180/pi;
 thetaCalB_xz = mean(atan2(LHEE_x(1:700)-LTIB_x(1:700),LHEE_z(1:700)-LTIB_z(1:700)));%*180/pi;
 
+phiX = thetaA_yz(:)-thetaCalA_yz;
+thetaY = thetaA_xz(:)-thetaCalA_xz;
+psiZ = thetaA_xy(:)-thetaCalA_xy;
 
 
 figure
-plot((thetaA_yz-thetaCalA_yz)*180/pi); 
+
+subplot(3,1,1);
+plot((phiX)*180/pi); 
 hold on;
 plot((thetaB_yz-thetaCalB_yz)*180/pi);
 xlabel("frame");
 ylabel("angle (deg)");
-title("Average Gait Cycle Curve: Calibrated YZ Plane" );
+title("Average Gait Cycle Curve: Calibrated YZ Plane, X axis" );
 legend('LTIBA', 'LTIB');
 
-figure
-plot((thetaA_xy-thetaCalA_xy)*180/pi); 
-hold on;
-plot((thetaB_xy-thetaCalB_xy)*180/pi);
-xlabel("frame");
-ylabel("angle (deg)");
-title("Average Gait Cycle Curve: Calibrated YZ Plane" );
-legend('LTIBA', 'LTIB');
-
-figure
-plot((thetaA_xz-thetaCalA_xz)*180/pi); 
+subplot(3,1,2);
+plot((thetaY)*180/pi); 
 hold on;
 plot((thetaB_xz-thetaCalB_xz)*180/pi);
 xlabel("frame");
 ylabel("angle (deg)");
-title("Average Gait Cycle Curve: Calibrated XZ Plane" );
+title("Average Gait Cycle Curve: Calibrated XZ Plane, y axis" );
 legend('LTIBA', 'LTIB');
+
+subplot(3,1,3);
+plot((psiZ)*180/pi); 
+%hold on;
+%plot((thetaB_xy-thetaCalB_xy)*180/pi);
+xlabel("frame");
+ylabel("angle (deg)");
+title("Average Gait Cycle Curve: Calibrated XY Plane, z axis" );
+legend('LTIBA');% 'LTIB');
+
 
 %rotation matrix calculation, RPY(XYZ)
 RA = cell(140,1);
+EulerRA = cell(140,1);
 for i = 1:length(RA)
-    RA{i,1} = Rotmat(thetaA_yz(i)-thetaCalA_yz,thetaA_xz(i)-thetaCalA_xz, thetaA_xy(i)-thetaCalA_xy);
+    RA{i} = Rotmat(phiX(i),thetaY(i), psiZ(i));
+    EulerRA{i} = EulerAngles(RA{i});
 end
-
+save('EulerRA.mat','EulerRA');
 save('AverageCurve.mat','AverageCurve');
 save('RA.mat','RA');
  
