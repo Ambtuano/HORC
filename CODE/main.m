@@ -87,7 +87,7 @@ for i = 1:length(AverageCurve)
         Ja = JacobianA(qq);
         qdot = (pinv(Ja))*K*e;
         qq = qq + qdot;
-        
+        %check qq within -pi,pi -> normalize
         xe = Forw_Kin(qq);
         e = [pd{i}; phid{i};phi{i}] - xe;
         e_(:,counter) = e;
@@ -120,17 +120,29 @@ for i =1:7
 end
 
 
-% %POSITION ERROR
-% figure
-% subplot(3,1,1);
-% plot(xe_(1,:)-AverageCurve(:,1)');
-% title("X position error");
-% subplot(3,1,2);
-% plot(xe_(2,:)-AverageCurve(:,2)');
-% title("X position error");
-% subplot(3,1,3);
-% plot(xe_(3,:)-AverageCurve(:,3)');
-% title("X position error");
+%POSITION ERROR
+figure
+subplot(3,1,1);
+plot(xe_(1,:)-AverageCurve(:,1)');
+title("X position error");
+subplot(3,1,2);
+plot(xe_(2,:)-AverageCurve(:,2)');
+title("X position error");
+subplot(3,1,3);
+plot(xe_(3,:)-AverageCurve(:,3)');
+title("X position error");
+
+%ORIENTATION 
+figure
+subplot(3,1,1);
+plot((xe_(1,:)));
+title("x");
+subplot(3,1,2);
+plot((xe_(2,:)));
+title("y");
+subplot(3,1,3);
+plot((xe_(3,:)));
+title("z");
 % 
 % 
 % %ORIENTATION ERROR
@@ -145,17 +157,17 @@ end
 % plot((xe_(6,:)-Euler(3,:))*180/pi);
 % title("Psi(z) error");
 
-%ORIENTATION 
-figure
-subplot(3,1,1);
-plot((xe_(4,:))*180/pi);
-title("Phi(z)");
-subplot(3,1,2);
-plot((xe_(5,:))*180/pi);
-title("Theta(y)");
-subplot(3,1,3);
-plot((xe_(6,:))*180/pi);
-title("Psi(z)");
+% %ORIENTATION 
+% figure
+% subplot(3,1,1);
+% plot((xe_(4,:))*180/pi);
+% title("Phi(z)");
+% subplot(3,1,2);
+% plot((xe_(5,:))*180/pi);
+% title("Theta(y)");
+% subplot(3,1,3);
+% plot((xe_(6,:))*180/pi);
+% title("Psi(z)");
 
 disp(T_total)
 dlmwrite('q.txt',q)
