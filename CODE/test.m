@@ -23,10 +23,10 @@ if (clientID>-1)
     
     %while true
     for i = 1:7
-        vrep.simxSetJointTargetPosition(clientID, h(i), q(i,2), vrep.simx_opmode_streaming);
+        vrep.simxSetJointTargetPosition(clientID, h(i), q(i,1), vrep.simx_opmode_streaming);
     end
     pause(15);
-        for j = 2:length(q)
+        for j = 1:length(q)
             for i = 1:7
                 vrep.simxSetJointTargetPosition(clientID, h(i), q(i,j), vrep.simx_opmode_streaming);
             end

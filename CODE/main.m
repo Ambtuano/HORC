@@ -1,5 +1,6 @@
 clear all;
 close all;
+%last updated: 8.4.2020
 
 %given information
 %frequency = 100hz
@@ -31,17 +32,6 @@ lim(6,1:2) = [120, 180]*pi/180;
 lim(7,1:2) = [170, 180]*pi/180;  
 
 %Calculating Transformation Matricies
-
-% d = [.340 0 .400 0 .400 0 .126]'; %m
-% alpha = [-pi/2 pi/2 pi/2 -pi/2 -pi/2 pi/2 0]';
-% a = zeros(7,1);
-% 
-% for i =1:7
-%     T{i} = [cos(qq(i)) -sin(qq(i))*cos(alpha(i)) sin(qq(i))*sin(alpha(i)) a(i)*cos(qq(i));
-%          sin(qq(i)) cos(qq(i))*cos(alpha(i)) -cos(qq(i))*sin(alpha(i)) a(i)*sin(qq(i));
-%          0 sin(alpha(i)) cos(alpha(i)) d(i); 0 0 0 1];
-% end
-% 
 TB0 = [0 0 1 0; 1 0 0 0; 0 1 0 0; 0 0 0 1];
 T07 = cell(140,1);
 TB7 = cell(140,1);
@@ -49,6 +39,7 @@ phi = cell(140,1);
 pd = cell(140,1);
 phid = cell(140,1);
 Euler = zeros(3,140);
+
 for i = t
     T07{i} = [RA{i},[AverageCurve(i,1);AverageCurve(i,2);AverageCurve(i,3)];0 0 0 1];
     TB7{i} = TB0*T07{i}; 
@@ -63,8 +54,6 @@ disp(Forw_Kin(q(:,1)));
 disp('goal matrix');
 disp(T07{1});
 
-
-
 %first point in 
 pa = T07{1}(1:3,4); %wrt 0
 xa = [pa;phi{1}]; 
@@ -72,23 +61,25 @@ xa = [pa;phi{1}];
 disp('xa');
 disp(xa);
 
-
-K = .1;
+K = .01;
 xe_= zeros(length(xa), length(t));
 e_ = zeros(length(xa), length(t));
+ee = zeros(length(xa), length(t));
 counter = 1;
+
 for i = 1:length(AverageCurve)
     xe = Forw_Kin(q(:,i));
     Ja = JacobianA(q(:,i));
     e = [pd{i}; phid{i};phi{i}] - xe;
     disp(i);
     disp(e);
-    while (max(abs(e)) > 0.000001)
+    while (max(abs(e(1:3))) > 0.0001 && max(abs(e(4:6))) > 0.01)
         Ja = JacobianA(qq);
-        qdot = (pinv(Ja))*K*e;
+        qdot = rem((pinv(Ja))*K*e,pi);
         qq = qq + qdot;
         %check qq within -pi,pi -> normalize
         xe = Forw_Kin(qq);
+        
         e = [pd{i}; phid{i};phi{i}] - xe;
         e_(:,counter) = e;
         
@@ -97,9 +88,12 @@ for i = 1:length(AverageCurve)
         disp(i);
     end
     xe_(:,i) = xe;
-    q(:,i+1) = qq;
+    
+    ee(:,i) = e;  
+    qq = rem(qq,pi);
+    q(:,i) = qq;
 end
-
+qq = rem(qq,pi);
 disp('desired output of End Effector: ')
 disp(xa)
 disp('Final output of End Effector: ')
@@ -119,20 +113,11 @@ for i =1:7
      T_total = T_total*T;
 end
 
+disp(TB0*T_total)
+dlmwrite('q.txt',q)
 
-%POSITION ERROR
-figure
-subplot(3,1,1);
-plot(xe_(1,:)-AverageCurve(:,1)');
-title("X position error");
-subplot(3,1,2);
-plot(xe_(2,:)-AverageCurve(:,2)');
-title("X position error");
-subplot(3,1,3);
-plot(xe_(3,:)-AverageCurve(:,3)');
-title("X position error");
 
-%ORIENTATION 
+%position 
 figure
 subplot(3,1,1);
 plot((xe_(1,:)));
@@ -143,33 +128,54 @@ title("y");
 subplot(3,1,3);
 plot((xe_(3,:)));
 title("z");
-% 
-% 
-% %ORIENTATION ERROR
-% figure
-% subplot(3,1,1);
-% plot((xe_(4,:)-Euler(1,:))*180/pi);
-% title("Phi(z) error");
-% subplot(3,1,2);
-% plot((xe_(5,:)-Euler(2,:))*180/pi);
-% title("Theta(y) error");
-% subplot(3,1,3);
-% plot((xe_(6,:)-Euler(3,:))*180/pi);
-% title("Psi(z) error");
 
-% %ORIENTATION 
-% figure
-% subplot(3,1,1);
-% plot((xe_(4,:))*180/pi);
-% title("Phi(z)");
-% subplot(3,1,2);
-% plot((xe_(5,:))*180/pi);
-% title("Theta(y)");
-% subplot(3,1,3);
-% plot((xe_(6,:))*180/pi);
-% title("Psi(z)");
+%ORIENTATION 
+figure
+subplot(3,1,1);
+plot((xe_(4,:)));
+title("Phi(z)");
+subplot(3,1,2);
+plot((xe_(5,:)));
+title("Theta(y)");
+subplot(3,1,3);
+plot((xe_(6,:)));
+title("Psi(z)");
 
-disp(T_total)
-dlmwrite('q.txt',q)
+%plotting Joint Angles
+figure
+plot(q(1,:))
+hold on
+plot(q(2,:))
+hold on
+plot(q(3,:))
+hold on
+plot(q(4,:))
+hold on
+plot(q(5,:))
+hold on
+plot(q(6,:))
+hold on
+plot(q(7,:))
+
+title("joint angles, rad")
+legend('q1','q2','q3','q4','q5','q6','q7')
+
+%plotting error at each frame
+figure
+plot(ee(1,:))
+hold on
+plot(ee(2,:))
+hold on
+plot(ee(3,:))
+hold on
+plot(ee(4,:))
+hold on
+plot(ee(5,:))
+hold on
+plot(ee(6,:))
+
+title("xe error")
+legend('e1','e2','e3','e4','e5','e6')
+
 
 
