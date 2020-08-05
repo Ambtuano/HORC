@@ -66,32 +66,37 @@ xe_= zeros(length(xa), length(t));
 e_ = zeros(length(xa), length(t));
 ee = zeros(length(xa), length(t));
 counter = 1;
+jcounter = 0;
 
-for i = 1:length(AverageCurve)
-    xe = Forw_Kin(q(:,i));
-    Ja = JacobianA(q(:,i));
-    e = [pd{i}; phid{i};phi{i}] - xe;
-    disp(i);
-    disp(e);
-    while (max(abs(e(1:3))) > 0.0001 && max(abs(e(4:6))) > 0.01)
-        Ja = JacobianA(qq);
-        qdot = rem((pinv(Ja))*K*e,pi);
-        qq = qq + qdot;
-        %check qq within -pi,pi -> normalize
-        xe = Forw_Kin(qq);
-        
+for j = 1:2
+    for i = 1:length(AverageCurve)
+        xe = Forw_Kin(q(:,i));
+        Ja = JacobianA(q(:,i));
         e = [pd{i}; phid{i};phi{i}] - xe;
-        e_(:,counter) = e;
-        
-        counter = counter + 1;
-        disp(counter);
+        while (max(abs(e(1:3))) > 0.0001 && max(abs(e(4:6))) > 0.001)
+            Ja = JacobianA(qq);
+            qdot = rem((pinv(Ja))*K*e,pi);
+            qq = qq + qdot;
+            %check qq within -pi,pi -> normalize
+            xe = Forw_Kin(qq);
+
+            e = [pd{i}; phid{i};phi{i}] - xe;
+            e_(:,counter) = e;
+
+            counter = counter + 1;
+            disp(counter);
+            disp(i);
+            disp(j);
+        end
+        disp('step');
         disp(i);
+        disp(j);
+        jcounter = jcounter + 1;
+        xe_(:,i) = xe;
+        ee(:,i) = e;  
+        qq = rem(qq,pi);
+        q(:,i) = qq;
     end
-    xe_(:,i) = xe;
-    
-    ee(:,i) = e;  
-    qq = rem(qq,pi);
-    q(:,i) = qq;
 end
 qq = rem(qq,pi);
 disp('desired output of End Effector: ')
@@ -118,16 +123,28 @@ dlmwrite('q.txt',q)
 
 
 %position 
+
+figure
+subplot(3,1,1);
+plot(AverageCurve(:,1));
+title("x: path");
+subplot(3,1,2);
+plot(AverageCurve(:,2));
+title("y: path");
+subplot(3,1,3);
+plot(AverageCurve(:,3));
+title("z: path");
+
 figure
 subplot(3,1,1);
 plot((xe_(1,:)));
-title("x");
+title("x: calculated");
 subplot(3,1,2);
 plot((xe_(2,:)));
-title("y");
+title("y: calculated");
 subplot(3,1,3);
 plot((xe_(3,:)));
-title("z");
+title("z: calculated");
 
 %ORIENTATION 
 figure
