@@ -127,41 +127,8 @@ VarLabel = ["LTIBA", "LTIB", "LHEE"];
 %         end
 %     end
 % end
-% 
-% % plot gait cycles of each market along yz axes
-% figure
-% subplot(3,1,1)
-% for i = 1:size(Position,2)/3
-% plot(AverageCurve(:,i*3-1),AverageCurve(:,i*3));
-% hold on;
-% xlabel("Y Position");
-% ylabel("Z Position");
-% title("Average Gait Cycle Curve: YZ Left view");
-% axis([-750 0 -500 500]);
-% end
-% legend('LTIBA', 'LTIB', 'LHEE');
-% 
-% subplot(3,1,2)
-% for i = 1:size(Position,2)/3
-% plot(AverageCurve(:,i*3-2),AverageCurve(:,i*3-1));
-% hold on;
-% xlabel("X Position");
-% ylabel("Y Position");
-% title("Average Gait Cycle Curve: XY Top view");
-% axis([-100 100 -1000 0]);
-% end
-% legend('LTIBA', 'LTIB', 'LHEE');
-% 
-% subplot(3,1,3)
-% for i = 1:size(Position,2)/3
-% plot(AverageCurve(:,i*3-2),AverageCurve(:,i*3));
-% hold on;
-% xlabel("X Position");
-% ylabel("Z Position");
-% title("Average Gait Cycle Curve: XZ Front view");
-% axis([-100 100 -100 100]);
-% end
-% legend('LTIBA', 'LTIB', 'LHEE');
+ 
+
 
 % figure
 % plot3(AverageCurve(:,1),AverageCurve(:,2),AverageCurve(:,3),...
@@ -176,12 +143,26 @@ thetaA_yz = (atan2(AverageCurve(:,8)-AverageCurve(:,2), AverageCurve(:,9)-Averag
 thetaB_yz = (atan2(AverageCurve(:,8)-AverageCurve(:,5), AverageCurve(:,9)-AverageCurve(:,6)));%*180/pi);
 
 %degrees (atan2(heel-tibia)) on XY 
-thetaA_xy = (atan2(AverageCurve(:,7)-AverageCurve(:,1), AverageCurve(:,8)-AverageCurve(:,2)));%*180/pi);
-thetaB_xy = (atan2(AverageCurve(:,7)-AverageCurve(:,4), AverageCurve(:,8)-AverageCurve(:,4)));%*180/pi);
+thetaA_xy = mean(atan2(AverageCurve(:,7)-AverageCurve(:,1), AverageCurve(:,8)-AverageCurve(:,2)));%*180/pi);
+thetaB_xy = mean(atan2(AverageCurve(:,7)-AverageCurve(:,4), AverageCurve(:,8)-AverageCurve(:,5)));%*180/pi);
 
 %degrees (atan2(heel-tibia)) on XZ plane
-thetaA_xz = (atan2(AverageCurve(:,7)-AverageCurve(:,1), AverageCurve(:,9)-AverageCurve(:,3)));%*180/pi);
-thetaB_xz = (atan2(AverageCurve(:,7)-AverageCurve(:,4), AverageCurve(:,9)-AverageCurve(:,6)));%*180/pi);
+thetaA_xz = mean(atan2(AverageCurve(:,7)-AverageCurve(:,1), AverageCurve(:,9)-AverageCurve(:,3)));%*180/pi);
+thetaB_xz = mean(atan2(AverageCurve(:,7)-AverageCurve(:,4), AverageCurve(:,9)-AverageCurve(:,6)));%*180/pi);
+
+
+
+% %degrees (atan2(heel-tibia)) on YZ plane
+% thetaA_yz = (atan2(AverageCurve(:,2)-AverageCurve(:,8), AverageCurve(:,3)-AverageCurve(:,9)));%*180/pi);
+% thetaB_yz = (atan2(AverageCurve(:,5)-AverageCurve(:,8), AverageCurve(:,6)-AverageCurve(:,9)));%*180/pi);
+% 
+% %degrees (atan2(heel-tibia)) on XY 
+% thetaA_xy = mean(atan2(AverageCurve(:,1)-AverageCurve(:,7), AverageCurve(:,2)-AverageCurve(:,8)));%*180/pi);
+% thetaB_xy = mean(atan2(AverageCurve(:,4)-AverageCurve(:,7), AverageCurve(:,5)-AverageCurve(:,8)));%*180/pi);
+% 
+% %degrees (atan2(heel-tibia)) on XZ plane
+% thetaA_xz = mean(atan2(AverageCurve(:,1)-AverageCurve(:,7), AverageCurve(:,3)-AverageCurve(:,9)));%*180/pi);
+% thetaB_xz = mean(atan2(AverageCurve(:,4)-AverageCurve(:,7), AverageCurve(:,6)-AverageCurve(:,9)));%*180/pi);
 
 %compensating for atan2 jump from -2pi to 0
 for i = 1:length(AverageCurve)
@@ -191,23 +172,29 @@ for i = 1:length(AverageCurve)
 end
 
 
-%calculating Calibration Angle
+% calculating Calibration Angle
 thetaCalA_yz = mean(atan2(LHEE_y(1:700)-LTIBA_y(1:700),LHEE_z(1:700)-LTIBA_z(1:700)));%*180/pi;
 thetaCalB_yz = mean(atan2(LHEE_y(1:700)-LTIB_y(1:700),LHEE_z(1:700)-LTIB_z(1:700)));%*180/pi;
 thetaCalA_xy = mean(atan2(LHEE_x(1:700)-LTIBA_x(1:700),LHEE_y(1:700)-LTIBA_y(1:700)));%*180/pi;
 thetaCalB_xy = mean(atan2(LHEE_x(1:700)-LTIB_x(1:700),LHEE_y(1:700)-LTIB_y(1:700)));%*180/pi;
 thetaCalA_xz = mean(atan2(LHEE_x(1:700)-LTIBA_x(1:700),LHEE_z(1:700)-LTIBA_z(1:700)));%*180/pi;
 thetaCalB_xz = mean(atan2(LHEE_x(1:700)-LTIB_x(1:700),LHEE_z(1:700)-LTIB_z(1:700)));%*180/pi;
+% 
+% thetaCalA_yz = mean(atan2(LHEE_z(1:700)-LTIBA_z(1:700),LHEE_y(1:700)-LTIBA_y(1:700)));%*180/pi;
+% thetaCalB_yz = mean(atan2(LHEE_z(1:700)-LTIB_z(1:700),LHEE_y(1:700)-LTIB_y(1:700)));%*180/pi;
+% thetaCalA_xy = mean(atan2(LHEE_y(1:700)-LTIBA_y(1:700),LHEE_x(1:700)-LTIBA_x(1:700)));%*180/pi;
+% thetaCalB_xy = mean(atan2(LHEE_y(1:700)-LTIB_y(1:700),LHEE_x(1:700)-LTIB_x(1:700)));%*180/pi;
+% thetaCalA_xz = mean(atan2(LHEE_z(1:700)-LTIBA_z(1:700),LHEE_x(1:700)-LTIBA_x(1:700)));%*180/pi;
+% thetaCalB_xz = mean(atan2(LHEE_z(1:700)-LTIB_z(1:700),LHEE_x(1:700)-LTIB_x(1:700)));%*180/pi;
 
-phiX = thetaA_yz(:)-thetaCalA_yz;
+phiZ = thetaA_xy(:)-thetaCalA_xy;
 thetaY = thetaA_xz(:)-thetaCalA_xz;
-psiZ = thetaA_xy(:)-thetaCalA_xy;
-
+psiX = thetaA_yz(:)-thetaCalA_yz;
 
 figure
 
 subplot(3,1,1);
-plot((phiX)*180/pi); 
+plot((psiX)*180/pi); 
 hold on;
 plot((thetaB_yz-thetaCalB_yz)*180/pi);
 xlabel("frame");
@@ -225,7 +212,7 @@ title("Average Gait Cycle Curve: Calibrated XZ Plane, y axis" );
 legend('LTIBA', 'LTIB');
 
 subplot(3,1,3);
-plot((psiZ)*180/pi); 
+plot((phiZ)*180/pi); 
 %hold on;
 %plot((thetaB_xy-thetaCalB_xy)*180/pi);
 xlabel("frame");
@@ -238,7 +225,7 @@ legend('LTIBA');% 'LTIB');
 RA = cell(140,1);
 EulerRA = cell(140,1);
 for i = 1:length(RA)
-    RA{i} = Rotmat(phiX(i),thetaY(i), psiZ(i));
+    RA{i} = Rotmat(phiZ, thetaY, psiX(i));
     EulerRA{i} = EulerAngles(RA{i});
 end
 save('EulerRA.mat','EulerRA');

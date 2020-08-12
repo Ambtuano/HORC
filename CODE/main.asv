@@ -180,7 +180,7 @@ plot(q(6,:)*180/pi)
 hold on
 plot(q(7,:)*180/pi)
 
-title("joint angles, deg")
+title("joint angles, rad")
 legend('q1','q2','q3','q4','q5','q6','q7')
 
 %plotting error at each frame
@@ -209,20 +209,7 @@ title("xe error")
 legend('e1','e2','e3','e4','e5','e6','plim','plim','olim','olim')
 
 %plotting Angular Velocity of each joint
-figure
-plot(diff(q(1,:))*180/pi)
-hold on
-plot(diff(q(2,:))*180/pi)
-hold on
-plot(diff(q(3,:))*180/pi)
-hold on
-plot(diff(q(4,:))*180/pi)
-hold on
-plot(diff(q(5,:))*180/pi)
-hold on
-plot(diff(q(6,:))*180/pi)
-hold on
-plot(diff(q(7,:))*180/pi)
-title("joint angles velocity, deg")
-legend('q1','q2','q3','q4','q5','q6','q7')
+
+
+
 
