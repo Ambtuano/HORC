@@ -22,20 +22,35 @@ if (clientID>-1)
     [r,h(7)] = vrep.simxGetObjectHandle(clientID, 'LBR_iiwa_7_R800_joint7', vrep.simx_opmode_blocking);
     
     %while true
+    %set initial position and pause for 15
     for i = 1:7
-        vrep.simxSetJointTargetPosition(clientID, h(i), q(i,2), vrep.simx_opmode_streaming);
+        vrep.simxSetJointTargetPosition(clientID, h(i), q(i,1), vrep.simx_opmode_streaming);
     end
     pause(15);
-        for j = 2:length(q)
+    
+    %for 4 loops, send joint angles for the gait cycle
+    for x = 1:4
+        for j = 1:length(q)
             for i = 1:7
-                vrep.simxSetJointTargetPosition(clientID, h(i), q(i,j), vrep.simx_opmode_streaming);
+                if (i == 6)
+                    vrep.simxSetJointTargetPosition(clientID, h(i), q(i,j), vrep.simx_opmode_streaming);
+                else
+                    vrep.simxSetJointTargetPosition(clientID, h(i), q(i,j), vrep.simx_opmode_streaming);
+                end
             end
             pause(0.1);
         end
+    end
+    
+    %send joint angles for final position
     for i = 1:7
-        vrep.simxSetJointTargetPosition(clientID, h(i), q(i,length(q)), vrep.simx_opmode_streaming);
-    end    
-    %end
+        if (i == 6)
+            vrep.simxSetJointTargetPosition(clientID, h(6), q(6,length(q)), vrep.simx_opmode_streaming);
+        else
+            vrep.simxSetJointTargetPosition(clientID, h(i), q(i,length(q)), vrep.simx_opmode_streaming);
+        end 
+     end   
+    pause(15);
     
 else
        disp('Failed connection to remote API server');

@@ -1,6 +1,4 @@
-clear all;
-close all;
-
+function q = JointAngles(LTIBA, LHEE, heel_strikes)
 %given information
 d = [.340 0 .400 0 .400 0 .126]';
 alpha = [-pi/2 pi/2 pi/2 -pi/2 -pi/2 pi/2 0]';
@@ -10,15 +8,9 @@ a = zeros(7,1);
 %Gait Cycle = 140 frames = 1.4s
 t = 1:1:140;
 
-%approximate link diameter:
-width = .068*2; %m
+[RA, AverageCurve] = CalcAvgCurve( LTIBA, LHEE, heel_strikes );
+AverageCurve = AverageCurve/1000; %m
 
-AverageCurvemat = load('AverageCurve.mat');
-AverageCurve = AverageCurvemat.AverageCurve/1000; %m
-RAmat = load('RA.mat');
-RA = RAmat.RA;
-% EulerRAmat = load('EulerRA.mat');
-% EulerRA = EulerRAmat.EulerRA;
 %initial angular configuration
 qq = zeros(7,1);
 q = zeros(length(qq), length(t));
@@ -40,7 +32,6 @@ T07 = cell(140,1);
 TB7 = cell(140,1);
 phi = cell(140,1);
 pd = cell(140,1);
-phid = cell(140,1);
 %Euler = zeros(3,140);
 
 for i = t
@@ -125,7 +116,6 @@ for i =1:7
 end
 
 disp(T_total)
-dlmwrite('q.txt',q)
 
 
 %plotting position 
@@ -154,14 +144,14 @@ title("z: calculated");
 %ORIENTATION 
 figure
 subplot(3,1,1);
-plot((xe_(4,:))*180/pi);
-title("Phi(z)(deg)");
+plot((xe_(4,:)));
+title("Phi(z)");
 subplot(3,1,2);
-plot((xe_(5,:))*180/pi);
-title("Theta(y)(deg)");
+plot((xe_(5,:)));
+title("Theta(y)");
 subplot(3,1,3);
-plot((xe_(6,:))*180/pi);
-title("Psi(z) (deg)");
+plot((xe_(6,:)));
+title("Psi(z)");
 
 %plotting Joint Angles
 figure
@@ -225,3 +215,5 @@ plot(diff(q(7,:))*180/pi)
 title("joint angles velocity, deg")
 legend('q1','q2','q3','q4','q5','q6','q7')
 
+
+dlmwrite('q.txt',q)
