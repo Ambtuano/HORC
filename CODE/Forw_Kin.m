@@ -1,3 +1,6 @@
+%Calculates the end effector pose based on joint angles [7x1] using forward
+%kinematics
+
 function [ xe ] = Forw_Kin( q )
 d = [.340 0 .400 0 .400 0 .126]';
 alpha = [-pi/2 pi/2 pi/2 -pi/2 -pi/2 pi/2 0]';

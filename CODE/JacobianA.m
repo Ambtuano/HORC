@@ -1,3 +1,5 @@
+%Calculates analytical jacobian [6x6] through given joint angles (q)
+
 function [ Ja ] = JacobianA( q )
 d = [.340 0 .400 0 .400 0 .126]';
 alpha = [-pi/2 pi/2 pi/2 -pi/2 -pi/2 pi/2 0]';
@@ -6,8 +8,8 @@ a = zeros(7,1);
 T = cell(7,1);
 for i = 1:7
     T{i} = [cos(q(i)) -sin(q(i))*cos(alpha(i)) sin(q(i))*sin(alpha(i)) a(i)*cos(q(i));...
-         sin(q(i)) cos(q(i))*cos(alpha(i)) -cos(q(i))*sin(alpha(i)) a(i)*sin(q(i));...
-         0 sin(alpha(i)) cos(alpha(i)) d(i); 0 0 0 1];
+            sin(q(i)) cos(q(i))*cos(alpha(i)) -cos(q(i))*sin(alpha(i)) a(i)*sin(q(i));...
+            0 sin(alpha(i)) cos(alpha(i)) d(i); 0 0 0 1];
 end
 
 J = zeros(6,7);

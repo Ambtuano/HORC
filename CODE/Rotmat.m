@@ -1,3 +1,5 @@
+%Calculates rotation matrix for Euler ZYX
+
 function R = Rotmat(phi, theta, psi) %zyx
 
 R = [ cos(phi)*cos(theta),   cos(phi)*sin(theta)*sin(psi)-sin(phi)*cos(psi),     cos(phi)*sin(theta)*cos(psi)+sin(phi)*sin(psi);
